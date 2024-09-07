@@ -1,0 +1,291 @@
+basePath: /
+definitions:
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
+  internal_controller_http_v1.createSegmentInput:
+    properties:
+      percentageUsers:
+        maximum: 10000
+        minimum: 1
+        type: integer
+      slug:
+        maxLength: 256
+        type: string
+    required:
+    - slug
+    type: object
+  internal_controller_http_v1.createSegmentResponse:
+    properties:
+      slug:
+        type: string
+    type: object
+  internal_controller_http_v1.deleteSegmentInput:
+    properties:
+      slug:
+        maxLength: 256
+        type: string
+    required:
+    - slug
+    type: object
+  internal_controller_http_v1.getHistoryInput:
+    properties:
+      month:
+        type: integer
+      user_id:
+        maxLength: 40
+        type: string
+      year:
+        type: integer
+    required:
+    - month
+    - user_id
+    - year
+    type: object
+  internal_controller_http_v1.getHistoryResponse:
+    properties:
+      report_link:
+        type: string
+      user_id:
+        type: string
+    type: object
+  internal_controller_http_v1.getSegmentsUserResponse:
+    properties:
+      segments:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: string
+    type: object
+  internal_controller_http_v1.setSegmentsUserInput:
+    properties:
+      segments_add:
+        items:
+          type: string
+        type: array
+      segments_del:
+        items:
+          type: string
+        type: array
+      ttl:
+        maximum: 1.8446744073709552e+19
+        minimum: 1
+        type: integer
+      user_id:
+        maxLength: 40
+        type: string
+    required:
+    - segments_add
+    - segments_del
+    - user_id
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: yrikdev@bk.ru
+    name: Onofriychuk Yaroslav
+  description: This service is for dynamic segmentation of users and reporting on
+    changes in active segments.
+  title: User Segmentation Service
+  version: "1.0"
+paths:
+  /api/v1/history/report-link:
+    post:
+      consumes:
+      - application/json
+      description: Этот эндпоинт позволяет получить ссылку на CSV отчет по пользователю
+        за определенный месяц и год.
+      operationId: getReportLink
+      parameters:
+      - description: API KEY для аутентификации
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные для получения ссылки на отчет
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_controller_http_v1.getHistoryInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное выполнение
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.getHistoryResponse'
+        "400":
+          description: Некорректный запрос или у пользователя отсутствует история
+            за указанный период
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Получение ссылки на CSV отчет
+      tags:
+      - History
+  /api/v1/segments/create:
+    post:
+      consumes:
+      - application/json
+      description: Этот эндпоинт позволяет создать новый сегмент
+      operationId: createSegment
+      parameters:
+      - description: API KEY для аутентификации
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные для создания сегмента
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_controller_http_v1.createSegmentInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешное выполнение
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.createSegmentResponse'
+        "400":
+          description: Некорректный запрос или данные
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Создание сегмента
+      tags:
+      - Segments
+  /api/v1/segments/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Этот эндпоинт позволяет удалить существующий сегмент.
+      operationId: deleteSegment
+      parameters:
+      - description: API KEY для аутентификации
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные для удаления сегмента
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_controller_http_v1.deleteSegmentInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Успешное удаление
+        "400":
+          description: Некорректный запрос или данные
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Сегмент не найден
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Удаление сегмента
+      tags:
+      - Segments
+  /api/v1/users/active-segments:
+    get:
+      consumes:
+      - application/json
+      description: Этот эндпоинт позволяет получить список сегментов, к которым принадлежит
+        пользователь.
+      operationId: getSegments
+      parameters:
+      - description: API KEY для аутентификации
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Идентификатор пользователя
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное выполнение
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.getSegmentsUserResponse'
+        "400":
+          description: Некорректный запрос или данные
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Получение активных сегментов пользователя
+      tags:
+      - Users
+  /api/v1/users/segments:
+    post:
+      consumes:
+      - application/json
+      description: Этот эндпоинт позволяет обновить сегменты, к которым принадлежит
+        пользователь.
+      operationId: setSegments
+      parameters:
+      - description: API KEY для аутентификации
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Данные для обновления сегментов пользователя
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_controller_http_v1.setSegmentsUserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешная операция
+        "400":
+          description: Некорректный запрос или данные
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Сегмент не найден
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Обновление сегментов пользователя
+      tags:
+      - Users
+securityDefinitions:
+  APIKey:
+    description: API KEY for authentication
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -1,0 +1,425 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This service is for dynamic segmentation of users and reporting on changes in active segments.",
+        "title": "User Segmentation Service",
+        "contact": {
+            "name": "Onofriychuk Yaroslav",
+            "email": "yrikdev@bk.ru"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/v1/history/report-link": {
+            "post": {
+                "description": "Этот эндпоинт позволяет получить ссылку на CSV отчет по пользователю за определенный месяц и год.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "summary": "Получение ссылки на CSV отчет",
+                "operationId": "getReportLink",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API KEY для аутентификации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для получения ссылки на отчет",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.getHistoryInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное выполнение",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.getHistoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос или у пользователя отсутствует история за указанный период",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/segments/create": {
+            "post": {
+                "description": "Этот эндпоинт позволяет создать новый сегмент",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Segments"
+                ],
+                "summary": "Создание сегмента",
+                "operationId": "createSegment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API KEY для аутентификации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для создания сегмента",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.createSegmentInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Успешное выполнение",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.createSegmentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос или данные",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/segments/delete": {
+            "delete": {
+                "description": "Этот эндпоинт позволяет удалить существующий сегмент.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Segments"
+                ],
+                "summary": "Удаление сегмента",
+                "operationId": "deleteSegment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API KEY для аутентификации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для удаления сегмента",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.deleteSegmentInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Успешное удаление"
+                    },
+                    "400": {
+                        "description": "Некорректный запрос или данные",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Сегмент не найден",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/active-segments": {
+            "get": {
+                "description": "Этот эндпоинт позволяет получить список сегментов, к которым принадлежит пользователь.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Получение активных сегментов пользователя",
+                "operationId": "getSegments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API KEY для аутентификации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Идентификатор пользователя",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное выполнение",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.getSegmentsUserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос или данные",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/segments": {
+            "post": {
+                "description": "Этот эндпоинт позволяет обновить сегменты, к которым принадлежит пользователь.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Обновление сегментов пользователя",
+                "operationId": "setSegments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API KEY для аутентификации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления сегментов пользователя",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.setSegmentsUserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешная операция"
+                    },
+                    "400": {
+                        "description": "Некорректный запрос или данные",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Сегмент не найден",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "echo.HTTPError": {
+            "type": "object",
+            "properties": {
+                "message": {}
+            }
+        },
+        "internal_controller_http_v1.createSegmentInput": {
+            "type": "object",
+            "required": [
+                "slug"
+            ],
+            "properties": {
+                "percentageUsers": {
+                    "type": "integer",
+                    "maximum": 10000,
+                    "minimum": 1
+                },
+                "slug": {
+                    "type": "string",
+                    "maxLength": 256
+                }
+            }
+        },
+        "internal_controller_http_v1.createSegmentResponse": {
+            "type": "object",
+            "properties": {
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_controller_http_v1.deleteSegmentInput": {
+            "type": "object",
+            "required": [
+                "slug"
+            ],
+            "properties": {
+                "slug": {
+                    "type": "string",
+                    "maxLength": 256
+                }
+            }
+        },
+        "internal_controller_http_v1.getHistoryInput": {
+            "type": "object",
+            "required": [
+                "month",
+                "user_id",
+                "year"
+            ],
+            "properties": {
+                "month": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "string",
+                    "maxLength": 40
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_controller_http_v1.getHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "report_link": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_controller_http_v1.getSegmentsUserResponse": {
+            "type": "object",
+            "properties": {
+                "segments": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_controller_http_v1.setSegmentsUserInput": {
+            "type": "object",
+            "required": [
+                "segments_add",
+                "segments_del",
+                "user_id"
+            ],
+            "properties": {
+                "segments_add": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "segments_del": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "ttl": {
+                    "type": "integer",
+                    "maximum": 18446744073709552000,
+                    "minimum": 1
+                },
+                "user_id": {
+                    "type": "string",
+                    "maxLength": 40
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "APIKey": {
+            "description": "API KEY for authentication",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

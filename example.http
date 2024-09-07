@@ -1,0 +1,288 @@
+# ---- Создание сегментов ---
+POST http://localhost:8080/api/v1/segments/create
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "slug": "AVITO_VOICE_MESSAGES"
+}
+
+###
+POST http://localhost:8080/api/v1/segments/create
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "slug": "AVITO_PERFORMANCE_VAS"
+}
+
+###
+POST http://localhost:8080/api/v1/segments/create
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "slug": "AVITO_DISCOUNT_30"
+}
+
+###
+POST http://localhost:8080/api/v1/segments/create
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "slug": "AVITO_DISCOUNT_50"
+}
+
+###
+POST http://localhost:8080/api/v1/segments/create
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "slug": "AVITO_DISCOUNT_AUTO"
+}
+
+###
+POST http://localhost:8080/api/v1/segments/create
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "slug": "REMOVE_LATER"
+}
+
+###
+
+# Попытка создания существующего сегмента
+POST http://localhost:8080/api/v1/segments/create
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "slug": "AVITO_DISCOUNT_50"
+}
+
+###
+
+# ---- Удаление сегмента ----
+DELETE http://localhost:8080/api/v1/segments/delete
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "slug": "REMOVE_LATER"
+}
+
+###
+
+# Попытка удаления несуществующего сегмента
+DELETE http://localhost:8080/api/v1/segments/delete
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "slug": "NO-EXIST"
+}
+
+###
+
+# ---- Создание пользователей и установка им сегментов ----
+# Попытка создания с несуществующим сегментом в segments_add. Операция не выполнится, вернется ошибка
+POST http://localhost:8080/api/v1/users/segments
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "user_id": "b2c03a4c-4409-11ee-be56-0242ac120011",
+  "segments_add": [
+    "AVITO_DISCOUNT_AUTO",
+    "AVITO_PERFORMANCE_VAS",
+    "NO-EXIST"
+  ],
+  "segments_del": [
+    "AVITO_DISCOUNT_AUTO"
+  ]
+}
+
+###
+
+# Создание 6 пользователей
+POST http://localhost:8080/api/v1/users/segments
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "user_id": "user_1",
+  "segments_add": [
+    "AVITO_DISCOUNT_AUTO",
+    "AVITO_PERFORMANCE_VAS",
+    "AVITO_DISCOUNT_50"
+  ],
+  "segments_del": []
+}
+
+###
+POST http://localhost:8080/api/v1/users/segments
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "user_id": "user_2",
+  "segments_add": [
+    "AVITO_DISCOUNT_AUTO"
+  ],
+  "segments_del": []
+}
+
+###
+POST http://localhost:8080/api/v1/users/segments
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "user_id": "user_3",
+  "segments_add": [
+    "AVITO_PERFORMANCE_VAS"
+  ],
+  "segments_del": []
+}
+
+###
+POST http://localhost:8080/api/v1/users/segments
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "user_id": "user_4",
+  "segments_add": [
+    "AVITO_DISCOUNT_AUTO",
+    "AVITO_PERFORMANCE_VAS"
+  ],
+  "segments_del": []
+}
+
+###
+POST http://localhost:8080/api/v1/users/segments
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "user_id": "user_5",
+  "segments_add": [
+    "AVITO_PERFORMANCE_VAS",
+    "AVITO_DISCOUNT_50",
+    "AVITO_DISCOUNT_30"
+  ],
+  "segments_del": []
+}
+
+###
+POST http://localhost:8080/api/v1/users/segments
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "user_id": "user_5",
+  "segments_add": [
+    "AVITO_PERFORMANCE_VAS",
+    "AVITO_DISCOUNT_50",
+    "AVITO_DISCOUNT_30"
+  ],
+  "segments_del": []
+}
+
+###
+
+# Создание пользователя с ttl сегментов 1 минута. Если получить активные сегменты через указанное время, то он результат окажется пустым
+POST http://localhost:8080/api/v1/users/segments
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "user_id": "user_6",
+  "segments_add": [
+    "AVITO_PERFORMANCE_VAS",
+    "AVITO_DISCOUNT_50",
+    "AVITO_DISCOUNT_30"
+  ],
+  "segments_del": [],
+  "ttl": 1
+}
+
+###
+
+# Удаление вместе с добавлением
+POST http://localhost:8080/api/v1/users/segments
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "user_id": "user_5",
+  "segments_add": [
+    "AVITO_DISCOUNT_AUTO"
+  ],
+  "segments_del": [
+    "AVITO_PERFORMANCE_VAS",
+    "AVITO_DISCOUNT_50",
+    "AVITO_DISCOUNT_30"
+  ]
+}
+
+###
+
+# Проверка активных сегментов пользователя user_5. Должно быть ["AVITO_DISCOUNT_AUTO"]
+GET http://localhost:8080/api/v1/users/active-segments?user_id=user_5
+Accept: application/json
+Authorization: Bearer <api_key>
+
+###
+
+# ---- Автоматическое добавление пользователей в сегмент ----
+POST http://localhost:8080/api/v1/segments/create
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "slug": "AVITO_AUTO_ADD",
+  "percentageUsers": 10000
+}
+
+###
+
+# Удаление сегмента, когда в нем состоят пользователи
+DELETE http://localhost:8080/api/v1/segments/delete
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "slug": "AVITO_AUTO_ADD"
+}
+
+###
+
+# ---- Получение отчета ----
+POST http://localhost:8080/api/v1/history/report-link
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "user_id": "user_5",
+  "year": 2023,
+  "month": 8
+}
+
+###
+
+# Несуществующий пользователь
+POST http://localhost:8080/api/v1/history/report-link
+Content-Type: application/json
+Authorization: Bearer <api_key>
+
+{
+  "user_id": "user_not_found",
+  "year": 2023,
+  "month": 8
+}
+
+###
